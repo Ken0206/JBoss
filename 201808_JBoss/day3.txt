@@ -1,0 +1,222 @@
+
+wget --recursive --no-clobber --page-requisites --html-extension --convert-links --restrict-file-names=windows --domains example.com --no-parent classroom.example.com/pub/
+
+wget --recursive --no-clobber --page-requisites --html-extension --convert-links --restrict-file-names=windows --no-parent 172.25.254.254/content/student_download/182485/
+
+wget --recursive --no-clobber --page-requisites --html-extension --convert-links --restrict-file-names=windows --no-parent 172.25.254.254/content/
+
+wget --recursive --no-clobber --page-requisites --html-extension --convert-links --restrict-file-names=windows --no-parent 172.25.254.254/materials/
+
+wget --recursive --no-clobber --page-requisites --html-extension --convert-links --restrict-file-names=windows --no-parent 172.25.254.250/ucf
+
+wget --recursive --no-clobber --page-requisites --html-extension --convert-links --restrict-file-names=windows --no-parent content.example.com/rhel7.2/x86_64/dvd
+
+
+tar cf fileName.tar source1 source2 source3
+tar xf fileName.tar
+tar xf fileName.tar -C newDir
+
+scp [user@]host:/path/fileName /tmp
+scp -r [user@]host:/path /tmp
+
+scp /tmp/fileName [user@]host:/path
+scp -r /tmp/dir [user@]host:/path
+
+
+tar -cf workstation.domain.p187.tar /opt/domain
+tar -cf servera.domain.p187.tar /opt/domain
+tar -cf serverb.domain.p187.tar /opt/domain
+scp student@servera:~/servera.domain.p187.tar ./
+scp student@serverb:~/serverb.domain.p187.tar ./
+scp student@workstation:~/*.tar ./
+
+
+
+
+p.265
+student:
+
+lab datasource-driver setup
+
+cd /opt/jboss-eap-7.0/bin/
+sudo -u jboss ./jboss-cli.sh
+
+sudo -u jboss /opt/jboss-eap-7.0/bin/jboss-cli.sh
+
+module add --name=com.mysql --resources=/usr/share/java/mysql-connector-java.jar --dependencies=javax.api,javax.transaction.api
+
+ls /opt/jboss-eap-7.0/modules/com/mysql/main/
+cat /opt/jboss-eap-7.0/modules/com/mysql/main/module.xml
+
+
+cd /opt/jboss-eap-7.0/bin/
+./standalone.sh -Djboss.server.base.dir=/home/student/JB248/labs/standalone
+
+/opt/jboss-eap-7.0/bin/standalone.sh -Djboss.server.base.dir=/home/student/JB248/labs/standalone
+
+connect localhost:9990
+jbossadm
+JBoss@RedHat123
+/subsystem=datasources/jdbc-driver=mysql:add(driver-name=mysql,driver-module-name=com.mysql)
+/subsystem=datasources/jdbc-driver=mysql:read-resource
+exit
+
+
+
+p.275
+lab datasource-configure setup
+
+cd /opt/jboss-eap-7.0/bin/
+./standalone.sh -Djboss.server.base.dir=/home/student/JB248/labs/standalone
+
+sudo systemctl status mariadb
+
+mysql -ubookstore -predhat
+show databases;
+use bookstore;
+show tables;
+
+
+http://localhost:9990
+jbossadm
+JBoss@RedHat123
+
+
+
+cd /opt/jboss-eap-7.0/bin/
+sudo -u jboss ./jboss-cli.sh
+connect
+jbossadm
+JBoss@RedHat123
+/subsystem=datasources/data-source=bookstore:read-resource
+deploy /tmp/dstest.war
+
+http://localhost:8080/dstest
+
+cd /subsystem=datasources/data-source=bookstore
+:read-resource(recursive=true)
+:write-attribute(name=min-pool-size,value=5)
+:read-resource(recursive=true)
+
+undeploy dstest.war
+exit
+
+ctrl + c
+
+
+
+
+p.283
+lab datasource-configurexa setup
+
+cd /opt/jboss-eap-7.0/bin/
+./standalone.sh -Djboss.server.base.dir=/home/student/JB248/labs/standalone
+
+cd /opt/jboss-eap-7.0/bin/
+sudo -u jboss ./jboss-cli.sh --connect
+jbossadm
+JBoss@RedHat123
+
+xa-data-source add --name=bookstorexa --jndi-name=java:jboss/datasources/bookstorexa --driver-name=mysql --xa-datasource-class=com.mysql.jdbc.jdbc2.optional.MysqlXADataSource --user-name=bookstore --password=redhat --xa-datasource-properties=[{"ServerName"=>"localhost"},{"DatabaseName"=>"bookstore"}]
+
+deploy /tmp/dstest.war
+
+
+
+
+p.288
+lab datasources-lab setup
+[root@workstation ~]# cp /usr/share/java/mysql-connector-java.jar /opt/jboss-eap-7.0/bin/
+[root@servera ~]# cp /usr/share/java/mysql-connector-java.jar /opt/jboss-eap-7.0/bin/
+[root@serverb ~]# cp /usr/share/java/mysql-connector-java.jar /opt/jboss-eap-7.0/bin/
+
+[root@workstation ~]# 
+cd /opt/jboss-eap-7.0/bin/
+sudo -u jboss ./jboss-cli.sh
+module add --name=com.mysql --resources=/opt/jboss-eap-7.0/bin/mysql-connector-java.jar --dependencies=javax.api,javax.transaction.api
+
+[root@servera ~]#
+cd /opt/jboss-eap-7.0/bin/
+sudo -u jboss ./jboss-cli.sh
+module add --name=com.mysql --resources=/opt/jboss-eap-7.0/bin/mysql-connector-java.jar --dependencies=javax.api,javax.transaction.api
+
+[root@serverb ~]#
+cd /opt/jboss-eap-7.0/bin/
+sudo -u jboss ./jboss-cli.sh
+module add --name=com.mysql --resources=/opt/jboss-eap-7.0/bin/mysql-connector-java.jar --dependencies=javax.api,javax.transaction.api
+
+[root@workstation ~]# ls /opt/jboss-eap-7.0/modules/com/mysql/main/
+
+[root@workstation ~]# sudo -u jboss /opt/jboss-eap-7.0/bin/domain.sh -Djboss.domain.base.dir=/opt/domain --host-config=host-master.xml
+
+[root@servera ~]# sudo -u jboss /opt/jboss-eap-7.0/bin/domain.sh -Djboss.domain.base.dir=/opt/domain -Djboss.domain.master.address=172.25.250.254 --host-config=host-slave.xml
+
+[root@serverb ~]# sudo -u jboss /opt/jboss-eap-7.0/bin/domain.sh -Djboss.domain.base.dir=/opt/domain -Djboss.domain.master.address=172.25.250.254 --host-config=host-slave.xml
+
+workstation jboss-cli :
+connect 172.25.250.254:9990
+/profile=full-ha/subsystem=datasources/jdbc-driver=mysql:add(driver-name=mysql,driver-module-name=com.mysql)
+
+data-source add --profile=full-ha --name=bookstore --driver-name=mysql --jndi-name=java:jboss/datasources/bookstore --connection-url=jdbc:mysql://172.25.250.254:3306/bookstore --user-name=bookstore --password=redhat
+
+http://172.25.250.254:9990
+jbossadm
+JBoss@RedHat123
+
+workstation jboss-cli :
+deploy /tmp/bookstore.war --server-groups=Group1
+
+http://172.25.250.10:8080/bookstore
+http://172.25.250.11:8080/bookstore
+
+
+all ctrl + c
+
+
+lab datasources-lab grade
+
+
+backup
+tar -Jcf servera.domain.p291.tar.xz /opt/domain
+tar -Jcf serverb.domain.p291.tar.xz /opt/domain
+
+tar -Jcf workstation.domain.p291.tar.xz /opt/domain
+scp root@servera:~/servera.domain.p291.tar.xz ./
+scp root@serverb:~/serverb.domain.p291.tar.xz ./
+
+scp root@workstation:~/*.xz ./
+
+
+
+wget --recursive --no-clobber --page-requisites --html-extension --convert-links --restrict-file-names=windows --no-parent 172.25.254.254/content/student_download/182485/
+
+
+
+p.307
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

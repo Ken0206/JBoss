@@ -1,0 +1,145 @@
+1
+
+ssh -X root@workstation
+
+ll /home/student/
+lab install-eap setup
+ll /home/student/
+ll /home/student/JB248/installs/
+java -jar /home/student/JB248/installs/jboss-eap-7.0.0-installer.jar
+/opt/jboss-eap-7.0
+jbossadm
+JBoss@RedHat123
+
+ll /home/student/JB248/installs/*.xml
+useradd -r jboss
+id jboss
+sudo -u jboss /opt/jboss-eap-7.0/bin/standalone.sh
+chown -R jboss:jboss /opt/jboss-eap-7.0
+ls -ld /opt/jboss-eap-7.0
+sudo -u jboss /opt/jboss-eap-7.0/bin/standalone.sh
+
+student
+.bashrc
+JBOSSHOME=/opt/jboss-eap-7.0
+PATH=$PATH:$JBOSSHOME/bin
+export JBOSSHOME PATH
+
+view myinstall.xml
+<entry key="adminUser" value="jbossadm"/>
+<entry autoPrompt="true" key="adminPassword"/>
+
+vim myinstall.xml.variables
+adminPassword=JBoss@RedHat123
+
+sudo -u jboss /opt/jboss-eap-7.0/bin/standalone.sh
+sudo -u jboss /opt/jboss-eap-7.0/bin/add-user.sh
+sudo -u jboss /opt/jboss-eap-7.0/bin/jboss-cli.sh --connect
+/subsystem=deployment-scanner /scanner=default:read-resource
+quit
+
+sudo java -jar /opt/jboss-eap-7.0/uninstaller/uninstaller.jar
+ls -la /opt
+sudo java -jar jboss-eap-7.0.0-installer.jar /root/myinstall.xml
+ls -la /optjboss-eap-7.0
+ls -la /opt/jboss-eap-7.0/bin
+sudo chown -R jboss:jboss /opt/jboss-eap-7.0
+ls -la /optjboss-eap-7.0
+sudo -u jboss /opt/jboss-eap-7.0/bin/standalone.sh
+firefox http://localhost:8080
+firefox http://localhost:9990   (login)
+
+
+tar -cvf chapter1.tar /opt/jboss-eap-7.0/standalone/configuration/
+
+
+
+
+
+2
+p.64
+login student:
+cd /opt/jboss-eap-7.0/standalone
+cp -r configuration deployments lib ~/JB248/labs/standalone-instance
+vim ~/JB248/labs/standalone-instance/configuration/standalone.xml\
+port-offset="${jboss.socket.binding.port-offset:10000}
+sudo /opt/jboss-eap-7.0/bin/standalone.sh -Djboss.server.base.dir=/home/student/JB248/labs/standalone-instance/
+firefox http://localhost:18080
+firefox http://localhost:19990   (login)
+ls ~/JB248/labs/standalone-instance
+
+
+
+2
+p.86
+login student:
+lab configuring-lab setup
+cd /opt/jboss-eap-7.0/standalone/
+sudo -u jboss cp -r configuration deployments lib /opt/jboss/standalone
+sudo -u jboss /opt/jboss-eap-7.0/bin/standalone.sh -Djboss.server.base.dir=/opt/jboss/standalone
+netstat -ntulp | grep java
+
+cd /opt/jboss-eap-7.0/standalone/
+sudo cp -r configuration deployments lib /opt/jboss/standalone2
+sudo -u jboss /opt/jboss-eap-7.0/bin/standalone.sh -Djboss.server.base.dir=/opt/jboss/standalone2 -Djboss.socket.binding.port-offset=10000
+netstat -ntulp | grep java
+
+
+
+
+
+3
+p.105
+
+login student:
+lab exploring-cli setup
+sudo -u jboss /opt/jboss-eap-7.0/bin/jboss-cli.sh -c
+quit
+
+sudo -u jboss /opt/jboss-eap-7.0/bin/jboss-cli.sh
+embed-server --server-config=exploring-cli.xml
+/:read-resource
+/subsystem=ejb3/thread-pool=default:read-resource
+cd /subsystem=logging
+:read-resource(recursive=true)
+cd /subsystem=datasources/data-source=ExampleDS
+:read-operation-description(name=test-connection-in-pool)
+:read-resource-description
+:write-attribute(name=min-pool-size,value=5)
+:write-attribute(name=max-pool-size,value=10)
+:read-attribute(name=min-pool-size)
+:read-attribute(name=max-pool-size)
+
+other console:
+open /opt/jboss-eap-7.0/standalone/configuration/exploring-cli.xml
+<pool>   ...   </pool>
+
+/system-property=env:add(value=production)
+/path=user.home:remove
+/subsystem=jsf:remove
+quit
+sudo rm  /opt/jboss-eap-7.0/standalone/configuration/exploring-cli.xml
+
+
+
+ex:
+sudo -u jboss /opt/jboss-eap-7.0/bin/jboss-cli.sh -c
+/subsystem=datasources:read-resource
+/subsystem=datasources:read-resource(recursive=true)
+/:read-resource(recursive=true)
+quit
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

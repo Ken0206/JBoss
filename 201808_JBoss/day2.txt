@@ -1,0 +1,394 @@
+
+wget --recursive --no-clobber --page-requisites --html-extension --convert-links --restrict-file-names=windows --domains example.com --no-parent classroom.example.com/pub/
+
+wget --recursive --no-clobber --page-requisites --html-extension --convert-links --restrict-file-names=windows --no-parent 172.25.254.254
+
+wget --recursive --no-clobber --page-requisites --html-extension --convert-links --restrict-file-names=windows --no-parent 172.25.254.254/content/student_download/182485/
+
+
+tar cf fileName.tar source1 source2 source3
+tar xf fileName.tar
+tar xf fileName.tar -C newDir
+
+scp [user@]host:/path/fileName /tmp
+scp -r [user@]host:/path /tmp
+
+scp /tmp/fileName [user@]host:/path
+scp -r /tmp/dir [user@]host:/path
+
+
+
+
+3
+p.120
+
+ssh -X root@workstation
+su - student
+lab deploy-tools setup
+sudo /opt/jboss-eap-7.0/bin/standalone.sh -Djboss.server.base.dir=/home/student/JB248/labs/standalone-instance/
+firefox http://localhost:19990    (login jbossadm)
+
+/home/student/JB248/labs/standalone-instance/content/data
+
+firefox http://localhost:18080/example
+
+open /home/student/JB248/labs/standalone-instance/configuration/standalone.xml
+<deploymants> ......... </deploymants>
+
+===========================================================================================================================
+
+
+
+
+sudo -u jboss /opt/jboss-eap-7.0/bin/jboss-cli.sh --connect --controller=localhost:19990
+deploy /home/student/JB248/labs/deploy-tools/version.war
+
+firefox http://localhost:18080/version
+
+cd /deployment
+ls
+./version.war:undelpoy
+firefox http://localhost:18080/version
+
+./version.war:redelpoy
+firefox http://localhost:18080/version
+
+/deployment=example.war:remove
+/deployment=version.war:remove
+exit
+ctrl + c stop EAP
+
+
+lab:
+p.127
+
+student:
+lab cli-lab setup
+sudo -u jboss /opt/jboss-eap-7.0/bin/standalone.sh -Djboss.server.base.dir=/opt/jboss/standalone2
+sudo -u jboss /opt/jboss-eap-7.0/bin/jboss-cli.sh -c --controller=localhost:9990
+cd /socket-binding-group=standard-sockets
+cd scoket-binding=http
+:write-attribute(name=port,value=8081)
+:read-resource
+cd /
+:reload
+cd /subsystem=loging/console-handler=CONSOLE
+write-attribute(name=level,value=INFO)
+:read-resource
+cd /
+deploy /tmp/bookstore.war
+
+firefox http://localhost:8081/bookstore
+
+exit
+
+lab cli-lab grade
+
+
+
+
+
+
+
+
+
+
+
+
+
+ll /home/student/
+lab install-eap setup
+ll /home/student/
+ll /home/student/JB248/installs/
+java -jar /home/student/JB248/installs/jboss-eap-7.0.0-installer.jar
+/opt/jboss-eap-7.0
+jbossadm
+JBoss@RedHat123
+
+ll /home/student/JB248/installs/*.xml
+useradd -r jboss
+id jboss
+sudo -u jboss /opt/jboss-eap-7.0/bin/standalone.sh
+chown -R jboss:jboss /opt/jboss-eap-7.0
+ls -ld /opt/jboss-eap-7.0
+sudo -u jboss /opt/jboss-eap-7.0/bin/standalone.sh
+
+student
+.bashrc
+JBOSSHOME=/opt/jboss-eap-7.0
+PATH=$PATH:$JBOSSHOME/bin
+export JBOSSHOME PATH
+
+view myinstall.xml
+<entry key="adminUser" value="jbossadm"/>
+<entry autoPrompt="true" key="adminPassword"/>
+
+vim myinstall.xml.variables
+adminPassword=JBoss@RedHat123
+
+sudo -u jboss /opt/jboss-eap-7.0/bin/standalone.sh
+sudo -u jboss /opt/jboss-eap-7.0/bin/add-user.sh
+sudo -u jboss /opt/jboss-eap-7.0/bin/jboss-cli.sh --connect
+/subsystem=deployment-scanner /scanner=default:read-resource
+quit
+
+sudo java -jar /opt/jboss-eap-7.0/uninstaller/uninstaller.jar
+ls -la /opt
+sudo java -jar jboss-eap-7.0.0-installer.jar /root/myinstall.xml
+ls -la /optjboss-eap-7.0
+ls -la /opt/jboss-eap-7.0/bin
+sudo chown -R jboss:jboss /opt/jboss-eap-7.0
+ls -la /optjboss-eap-7.0
+sudo -u jboss /opt/jboss-eap-7.0/bin/standalone.sh
+firefox http://localhost:8080
+firefox http://localhost:9990   (login)
+
+
+tar -cvf chapter1.tar /opt/jboss-eap-7.0/standalone/configuration/
+
+
+
+
+
+2
+login student:
+cd /opt/jboss-eap-7.0/standalone
+cp -r configuration deployments lib ~/JB248/labs/standalone-instance
+vim ~/JB248/labs/standalone-instance/configuration/standalone.xml\
+port-offset="${jboss.socket.binding.port-offset:10000}
+sudo /opt/jboss-eap-7.0/bin/standalone.sh -Djboss.server.base.dir=/home/student/JB248/labs/standalone-instance/
+firefox http://localhost:18080
+firefox http://localhost:19990   (login)
+ls ~/JB248/labs/standalone-instance
+
+
+login student:
+lab configuring-lab setup
+cd /opt/jboss-eap-7.0/standalone/
+sudo -u jboss cp -r configuration deployments lib /opt/jboss/standalone
+sudo -u jboss /opt/jboss-eap-7.0/bin/standalone.sh -Djboss.server.base.dir=/opt/jboss/standalone
+netstat -ntulp | grep java
+
+cd /opt/jboss-eap-7.0/standalone/
+sudo cp -r configuration deployments lib /opt/jboss/standalone2
+sudo -u jboss /opt/jboss-eap-7.0/bin/standalone.sh -Djboss.server.base.dir=/opt/jboss/standalone2 -Djboss.socket.binding.port-offset=10000
+netstat -ntulp | grep java
+
+
+
+
+
+3
+login student:
+lab exploring-cli setup
+sudo -u jboss /opt/jboss-eap-7.0/bin/jboss-cli.sh -c
+quit
+
+sudo -u jboss /opt/jboss-eap-7.0/bin/jboss-cli.sh
+embed-server --server-config=exploring-cli.xml
+/:read-resource
+/subsystem=ejb3/thread-pool=default:read-resource
+cd /subsystem=logging
+:read-resource(recursive=true)
+cd /subsystem=datasources/data-source=ExampleDS
+:read-operation-description(name=test-connection-in-pool)
+:read-resource-description
+:write-attribute(name=min-pool-size,value=5)
+:write-attribute(name=max-pool-size,value=10)
+:read-attribute(name=min-pool-size)
+:read-attribute(name=max-pool-size)
+
+other console:
+open /opt/jboss-eap-7.0/standalone/configuration/exploring-cli.xml
+<pool>   ...   </pool>
+
+/system-property=env:add(value=production)
+/path=user.home:remove
+/subsystem=jsf:remove
+quit
+sudo rm  /opt/jboss-eap-7.0/standalone/configuration/exploring-cli.xml
+
+
+
+ex:
+sudo -u jboss /opt/jboss-eap-7.0/bin/jboss-cli.sh -c
+/subsystem=datasources:read-resource
+/subsystem=datasources:read-resource(recursive=true)
+/:read-resource(recursive=true)
+quit
+
+
+
+
+
+
+
+
+p.151
+su - student
+lab assign-controller setup
+cd /home/student/JB248/labs/domain/
+mkdir machine1
+cp -r /opt/jboss-eap-7.0/domain/ machine1/domain
+cd machine1/domain/configuration/
+vim host-master.xml
+vim domain.xml
+cd /opt/jboss-eap-7.0/bin/
+./domain.sh -Djboss.domain.base.dir=/home/student/JB248/labs/domain/machine1/domain/ --host-config=host-master.xml
+
+
+
+p.161
+lab configure-host setup
+cd /home/student/JB248/labs/host/
+mkdir machine2
+mkdir machine3
+cp -r /opt/jboss-eap-7.0/domain/ machine2/domain
+cp -r /opt/jboss-eap-7.0/domain/ machine3/domain
+cd machine2/domain/configuration/
+
+vim host-slave.xml
+<host name="host2" xmlns="urn:jboss:domain:4.1">
+
+        <management-interfaces>
+            <native-interface security-realm="ManagementRealm">
+                <socket interface="management" port="${jboss.management.native.port:29999}"/>
+            </native-interface>
+        </management-interfaces>
+
+    <interfaces>
+        <interface name="management">
+            <inet-address value="${jboss.bind.address.management:172.25.250.254}"/>
+        </interface>
+        <interface name="public">
+            <inet-address value="${jboss.bind.address:172.25.250.254}"/>
+        </interface>
+    </interfaces>
+
+cd /opt/jboss-eap-7.0/bin/
+./domain.sh -Djboss.domain.base.dir=/home/student/JB248/labs/domain/machine1/domain/ --host-config=host-master.xml
+./domain.sh -Djboss.domain.base.dir=/home/student/JB248/labs/host/machine2/domain/ --host-config=host-slave.xml -Djboss.domain.master.address=172.25.250.254
+
+
+cd /home/student/JB248/labs/host/machine3/domain/configuration/
+
+vim host-slave.xml
+<host name="host3" xmlns="urn:jboss:domain:4.1">
+
+        <management-interfaces>
+            <native-interface security-realm="ManagementRealm">
+                <socket interface="management" port="${jboss.management.native.port:39999}"/>
+            </native-interface>
+        </management-interfaces>
+
+    <interfaces>
+        <interface name="management">
+            <inet-address value="${jboss.bind.address.management:172.25.250.254}"/>
+        </interface>
+        <interface name="public">
+            <inet-address value="${jboss.bind.address:172.25.250.254}"/>
+        </interface>
+    </interfaces>
+
+    <servers>
+        <server name="server-three" group="other-server-group">
+            <socket-bindings port-offset="1000"/>
+        </server>
+    </servers>
+
+cd /opt/jboss-eap-7.0/bin/
+./domain.sh -Djboss.domain.base.dir=/home/student/JB248/labs/host/machine3/domain/ --host-config=host-slave.xml -Djboss.domain.master.address=172.25.250.254
+
+http://172.25.250.254:8080/
+http://172.25.250.254:8230/
+http://172.25.250.254:9080/
+
+ll /home/student/JB248/labs/domain/machine1/domain/log/
+ll /home/student/JB248/labs/host/machine2/domain/log/
+ll /home/student/JB248/labs/host/machine3/domain/log/
+
+
+host2 ctrl + c
+see master console
+./domain.sh -Djboss.domain.base.dir=/home/student/JB248/labs/host/machine2/domain/ --host-config=host-slave.xml -Djboss.domain.master.address=172.25.250.254
+see master console
+
+master ctrl + c
+http://172.25.250.254:8080/
+http://172.25.250.254:8230/
+http://172.25.250.254:9080/
+./domain.sh -Djboss.domain.base.dir=/home/student/JB248/labs/domain/machine1/domain/ --host-config=host-master.xml
+see master console, host2 host3 reconnect
+
+stop all
+
+
+
+
+
+p.175
+student:
+ssh servera hostname
+ssh serverb hostname
+lab managed-domain-lab setup
+sudo cp -r /opt/jboss-eap-7.0/domain/ /opt
+sudo chown -R jboss:jboss /opt/domain
+
+sudo vim /opt/domain/configuration/host-master.xml
+    <interfaces>
+        <interface name="management">
+            <inet-address value="${jboss.bind.address.management:172.25.250.254}"/>
+        </interface>
+    </interfaces>
+
+
+sudo -u jboss vi /opt/domain/configuration/domain.xml
+<cluster password="${jboss.messaging.cluster.password:JBoss@RedHat123}"/>
+
+cd /opt/jboss-eap-7.0/bin/
+sudo -u jboss ./domain.sh -Djboss.domain.base.dir=/opt/domain/ --host-config=host-master.xml
+
+
+
+ssh servera
+sudo cp -r /opt/jboss-eap-7.0/domain/ /opt
+sudo chown -R jboss:jboss /opt/domain
+sudo vim /opt/domain/configuration/host-slave.xml
+<host name="servera" xmlns="urn:jboss:domain:4.1">
+
+sudo -u jboss /opt/jboss-eap-7.0/bin/domain.sh -Djboss.domain.base.dir=/opt/domain --host-config=host-slave.xml -Djboss.domain.master.address=172.25.250.254
+
+
+
+ssh serverb
+sudo cp -r /opt/jboss-eap-7.0/domain/ /opt
+sudo chown -R jboss:jboss /opt/domain
+
+sudo vim /opt/domain/configuration/host-slave.xml
+<host name="serverb" xmlns="urn:jboss:domain:4.1">
+
+sudo -u jboss /opt/jboss-eap-7.0/bin/domain.sh -Djboss.domain.base.dir=/opt/domain --host-config=host-slave.xml -Djboss.domain.master.address=172.25.250.254
+
+
+sudo -u jboss /opt/jboss-eap-7.0/bin/jboss-cli.sh --connect --controller=172.25.250.254:9990
+:stop-servers
+/host=servera/server-config=server-one:remove
+/host=servera/server-config=server-two:remove
+/host=serverb/server-config=server-three:remove
+/server-group=main-server-group:remove
+/server-group=other-server-group:remove
+lab managed-domain-lab grade
+
+
+
+
+tar -cf workstation.domain.p187.tar /opt/domain
+tar -cf servera.domain.p187.tar /opt/domain
+tar -cf serverb.domain.p187.tar /opt/domain
+scp student@servera:~/servera.domain.p187.tar ./
+scp student@serverb:~/serverb.domain.p187.tar ./
+scp student@workstation:~/*.tar ./
+
+
+
+

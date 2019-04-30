@@ -1,0 +1,121 @@
+
+wget --recursive --no-clobber --page-requisites --html-extension --convert-links --restrict-file-names=windows --no-parent 172.25.254.254/content/student_download/182485/
+
+
+backup
+tar -Jcf servera.domain.p291.tar.xz /opt/domain
+tar -Jcf serverb.domain.p291.tar.xz /opt/domain
+
+tar -Jcf workstation.domain.p291.tar.xz /opt/domain
+scp root@servera:~/servera.domain.p291.tar.xz ./
+scp root@serverb:~/serverb.domain.p291.tar.xz ./
+
+scp root@workstation:~/*.xz ./
+
+
+wget --recursive --no-clobber --page-requisites --html-extension --convert-links --restrict-file-names=windows --no-parent 172.25.254.254/content/student_download/182485/
+
+
+
+
+p.405
+lab securing-dbrealm setup
+cd /opt/jboss-eap-7.0/bin/
+./standalone.sh -Djboss.server.base.dir=/home/student/JB248/labs/standalone
+
+http://localhost:9990
+jbossadm
+JBoss@RedHat123
+
+
+cd /opt/jboss-eap-7.0/bin/
+sudo -u jboss ./jboss-cli.sh --connect
+jbossadm
+JBoss@RedHat123
+
+/subsystem=security/security-domain=bksecurity/authentication=classic:add
+
+/subsystem=security/security-domain=bksecurity/authentication=classic/login-module=database:add(code=Database,flag=required,module-options=[("dsJndiName"=>"java:/jboss/datasources/bksecurity-ds"), ("principalsQuery"=>"select password from user where username=?"), ("rolesQuery"=>"select role, 'Roles' from roles where username=?"), ("hashEncoding"=>"base64"), ("hashAlgorithm"=>"SHA-256") ])
+
+:reload
+/subsystem=security/security-domain=bksecurity/authentication=classic/login-module=database:read-resource
+
+
+vim /home/student/JB248/labs/security-dbrealm/example/src/main/webapp/WEB-INF/web.xml
+
+vim /home/student/JB248/labs/security-dbrealm/example/src/main/webapp/WEB-INF/jboss-web.xml
+<security-domain>kbsecurity</security-domain>
+
+
+cd /home/student/JB248/labs/security-dbrealm/example/src/main/webapp
+jar -cvf example.war .
+
+
+error
+
+
+
+
+
+p.413
+lab securing-ldap setup
+cd /opt/jboss-eap-7.0/bin/
+./standalone.sh -Djboss.server.base.dir=/home/student/JB248/labs/standalone
+
+
+cd /home/student/JB248/labs/security-ldap/
+jar -xvf guessLDAP.war
+grep --color jb248_ldap /home/student/JB248/labs/security-ldap/WEB-INF/jboss-web.xml
+
+ldapsearch -x -D "cn=Manager,dc=redhat,dc=com" -w 43etq5 -b "dc=redhat,dc=com"
+
+
+cd /opt/jboss-eap-7.0/bin/
+sudo -u jboss ./jboss-cli.sh --connect
+jbossadm
+JBoss@RedHat123
+
+/subsystem=security/security-domain=jb248_ldap:add(cache-type=default)
+/subsystem=security/security-domain=jb248_ldap/authentication=classic:add
+
+/subsystem=security/security-domain=jb248_ldap/authentication=classic/login-module=ldap_login:add(code=Ldap, flag=required, module-options=[("java.naming.factory.initial"=>"com.sun.jndi.ldap.LdapCtxFactory"),("java.naming.provider.url"=>"ldap://localhost:389"), ("java.naming.security.authentication"=>"simple"), ("principalDNPrefix"=>"uid="), ("principalDNSuffix"=>",ou=people, dc=redhat, dc=com"), ("rolesCtxDN"=>"ou=Roles, dc=redhat, dc=com"), ("uidAttributeID"=>"member"), ("matchOnUserDN"=>"true"), ("roleAttributeID"=>"cn"), ("roleAttributeIsDN"=>"false")])
+
+/subsystem=security/security-domain=jb248_ldap:read-resource(recursive=ture)
+:reload
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

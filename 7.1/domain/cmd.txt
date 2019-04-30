@@ -1,0 +1,110 @@
+java -jar jboss-eap-7.1.0-installer.jar -console auto.xml
+
+firewall-cmd --add-port=8080/tcp --add-port=9990/tcp --add-port=8443/tcp
+firewall-cmd --add-port=8080/tcp --add-port=9990/tcp --add-port=8443/tcp --permanent
+
+
+p.151
+mkdir machine1
+cp -r /opt/jboss-eap-7.1/domain/ machine1/
+cd machine1/domain/configuration/
+
+vim host-master.xml
+<inet-address value="${jboss.bind.address.management:192.168.188.30}"/>
+
+vim domain.xml
+<cluster password="${jboss.messaging.cluster.password:1qaz@WSX}"/>
+
+/opt/jboss-eap-7.1/bin/domain.sh -Djboss.domain.base.dir=/root/machine1/domain/ --host-config=host-master.xml
+
+
+mkdir machine2
+mkdir machine3
+cp -r /opt/jboss-eap-7.1/domain/ machine3/domain
+cp -r /opt/jboss-eap-7.1/domain/ machine2/domain
+
+cd machine2/domain/configuration/
+
+vim host-slave.xml
+<host name="host2" xmlns="urn:jboss:domain:5.0">
+..... port="${jboss.management.native.port:29999}"/>
+..... <inet-address value="${jboss.bind.address.management:192.168.188.30}"/>
+..... <inet-address value="${jboss.bind.address:192.168.188.30}"/>
+
+/opt/jboss-eap-7.1/bin/domain.sh -Djboss.domain.base.dir=/root/machine2/domain/ --host-config=host-slave.xml -Djboss.domain.master.address=192.168.188.30
+
+
+
+cd machine3/domain/configuration/
+
+vim host-slave.xml
+<host name="host3" xmlns="urn:jboss:domain:5.0">
+..... port="${jboss.management.native.port:39999}"/>
+..... <inet-address value="${jboss.bind.address.management:192.168.188.30}"/>
+..... <inet-address value="${jboss.bind.address:192.168.188.30}"/>
+
+/opt/jboss-eap-7.1/bin/domain.sh -Djboss.domain.base.dir=/root/machine3/domain/ --host-config=host-slave.xml -Djboss.domain.master.address=192.168.188.30
+
+
+
+
+
+p.175
+
+dc:
+cp -r /opt/jboss-eap-7.1/domain/ /opt
+
+vim /opt/domain/configuration/host-master.xml
+<inet-address value="${jboss.bind.address.management:192.168.188.30}"/>
+
+vim /opt/domain/configuration/domain.xml
+<cluster password="${jboss.messaging.cluster.password:1qaz@WSX}"/>
+
+/opt/jboss-eap-7.1/bin/domain.sh -Djboss.domain.base.dir=/opt/domain/ --host-config=host-master.xml
+
+s1:
+cp -r /opt/jboss-eap-7.1/domain/ /opt
+
+vim /opt/domain/configuration/host-slave.xml
+<host name="server1" xmlns="urn:jboss:domain:5.0">
+..... <inet-address value="${jboss.bind.address.management:192.168.188.31}"/>
+..... <inet-address value="${jboss.bind.address:192.168.188.31}"/>
+
+/opt/jboss-eap-7.1/bin/domain.sh -Djboss.domain.base.dir=/opt/domain --host-config=host-slave.xml -Djboss.domain.master.address=192.168.188.30
+
+
+s2:
+cp -r /opt/jboss-eap-7.1/domain/ /opt
+
+vim /opt/domain/configuration/host-slave.xml
+<host name="server2" xmlns="urn:jboss:domain:5.0">
+..... <inet-address value="${jboss.bind.address.management:192.168.188.32}"/>
+..... <inet-address value="${jboss.bind.address:192.168.188.32}"/>
+
+server-identities
+MXFhekBXU1g=
+
+domain-controller
+username="domainMaster"
+
+<remote host="192.168.188.30"  port="9999" security-realm="ManagementRealm" username="domainMaster" /> 
+
+
+
+/opt/jboss-eap-7.1/bin/domain.sh -Djboss.domain.base.dir=/opt/domain --host-config=host-slave.xml -Djboss.domain.master.address=192.168.188.30
+
+
+
+
+firewall-cmd --add-port=9999/tcp --add-port=9990/tcp --add-port=8443/tcp
+firewall-cmd --add-port=9999/tcp --add-port=9990/tcp --add-port=8443/tcp --permanent
+
+firewall-cmd --add-port=8080/tcp --add-port=9990/tcp --add-port=9999/tcp --add-port=8443/tcp
+firewall-cmd --add-port=8080/tcp --add-port=9990/tcp --add-port=9999/tcp --add-port=8443/tcp --permanent
+
+firewall-cmd --list-all
+netstat -ntulp | grep java
+
+
+
+

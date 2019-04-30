@@ -1,0 +1,107 @@
+java -jar jboss-eap-7.1.0-installer.jar -console auto.xml
+
+#for instance 0
+firewall-cmd --add-port=8080/tcp --add-port=9990/tcp --add-port=8443/tcp
+firewall-cmd --add-port=8080/tcp --add-port=9990/tcp --add-port=8443/tcp --permanent
+
+#for instance 1
+cd /opt/jboss-eap-7.1/standalone/
+mkdir -p /opt/jboss/standalone1
+cp -r configuration deployments lib /opt/jboss/standalone1
+cd
+firewall-cmd --add-port=18080/tcp --add-port=19990/tcp --add-port=18443/tcp
+firewall-cmd --add-port=18080/tcp --add-port=19990/tcp --add-port=18443/tcp --permanent
+
+#for instance 2
+cd /opt/jboss-eap-7.1/standalone/
+mkdir -p /opt/jboss/standalone2
+cp -r configuration deployments lib /opt/jboss/standalone2
+cd
+firewall-cmd --add-port=28080/tcp --add-port=29990/tcp --add-port=28443/tcp
+firewall-cmd --add-port=28080/tcp --add-port=29990/tcp --add-port=28443/tcp --permanent
+
+
+#instance 0
+/opt/jboss-eap-7.1/bin/standalone.sh -Djboss.bind.address=0.0.0.0 -Djboss.bind.address.management=0.0.0.0
+
+#instance 1
+/opt/jboss-eap-7.1/bin/standalone.sh -Djboss.bind.address=0.0.0.0 -Djboss.bind.address.management=0.0.0.0 -Djboss.server.base.dir=/opt/jboss/standalone1 -Djboss.socket.binding.port-offset=10000
+
+#instance 2
+/opt/jboss-eap-7.1/bin/standalone.sh -Djboss.bind.address=0.0.0.0 -Djboss.bind.address.management=0.0.0.0 -Djboss.server.base.dir=/opt/jboss/standalone2 -Djboss.socket.binding.port-offset=20000
+
+
+netstat -ntulp | grep java
+
+
+
+
+/opt/jboss-eap-7.1/bin/jboss-cli.sh --connect
+
+deployment-info
+deploy /root/version.war --runtime-name=runtime1.war
+deployment-info
+
+http://x.x.x.x:8080/runtime1
+
+
+/opt/jboss-eap-7.1/bin/jboss-cli.sh -c
+cd /interface=management
+cd /
+:read-resource
+:read-resource(recursive=true)
+/subsystem=datasources:read-resource
+
+/interface=management:write-attribute(name=inet-address, value=expression "${jboss.bind.address.management:0.0.0.0}")
+/interface=management:read-attribute(name=inet-address)
+/interface=management:read-resource
+ls /interface=management
+
+/interface=public:write-attribute(name=inet-address, value=expression "${jboss.bind.address:0.0.0.0}")
+/interface=public:read-attribute(name=inet-address)
+/interface=public:read-resource
+ls /interface=public
+
+/socket-binding-group=standard-sockets:write-attribute(name=port-offset, value=expression "${jboss.socket.binding.port-offset:10000}")
+/socket-binding-group=standard-sockets:read-attribute(name=port-offset)
+/socket-binding-group=standard-sockets:read-resource
+ls /socket-binding-group=standard-sockets
+
+/opt/jboss-eap-7.1/bin/jboss-cli.sh -c controller=localhost:19990
+
+/opt/jboss-eap-7.1/bin/standalone.sh -bmanagement 0.0.0.0
+
+
+vim r_inet-addres_port-offset.cli
+/interface=management:read-attribute(name=inet-address)
+/interface=public:read-attribute(name=inet-address)
+/socket-binding-group=standard-sockets:read-attribute(name=port-offset)
+
+/opt/jboss-eap-7.1/bin/jboss-cli.sh -c --file=/root/r_inet-addres_port-offset.cli
+
+
+vim w_inet-addres_port-offset.cli
+/interface=management:write-attribute(name=inet-address, value=expression "${jboss.bind.address.management:0.0.0.0}")
+/interface=public:write-attribute(name=inet-address, value=expression "${jboss.bind.address:0.0.0.0}")
+/socket-binding-group=standard-sockets:write-attribute(name=port-offset, value=expression "${jboss.socket.binding.port-offset:0}")
+
+/opt/jboss-eap-7.1/bin/jboss-cli.sh -c --file=/root/w_inet-addres_port-offset.cli
+
+/opt/jboss-eap-7.1/bin/jboss-cli.sh -c ":reload"
+/opt/jboss-eap-7.1/bin/jboss-cli.sh -c "/interface=management:read-attribute(name=inet-address)"
+/opt/jboss-eap-7.1/bin/jboss-cli.sh -c "/interface=management:read-attribute(name=inet-address)" | grep "result"
+
+/opt/jboss-eap-7.1/bin/jboss-cli.sh -c ":read-resource(recursive)" | grep "inet-address"/opt/jboss-eap-7.1/bin/jboss-cli.sh -c ":read-resource(recursive)" | grep "inet-address"
+/opt/jboss-eap-7.1/bin/jboss-cli.sh -c ":read-resource(recursive)" > a2
+
+
+
+/opt/jboss-eap-7.1/bin/jboss-cli.sh
+[disconnected /] 
+embed-server --server-config=test2.xml (檔案存在)
+
+embed-server --server-config=test_cli.xml --empty-config (建一個空的設定檔)
+
+
+
+

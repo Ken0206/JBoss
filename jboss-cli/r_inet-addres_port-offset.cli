@@ -1,0 +1,3 @@
+/interface=management:read-attribute(name=inet-address)
+/interface=public:read-attribute(name=inet-address)
+/socket-binding-group=standard-sockets:read-attribute(name=port-offset)

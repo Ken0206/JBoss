@@ -1,0 +1,49 @@
+OS version
+
+jboss-eap-6.4.0-installer.jar
+jboss-eap-6.4.0.zip
+
+serviceAccount
+
+installation path:
+Admin username:
+password:
+
+
+start as a service
+
+
+
+
+/opt/EAP-6.4.0/bin/jboss-cli.sh
+
+
+iptables -L -n
+/sbin/iptables -A INPUT -p TCP -i eth1 --dport  8080 -j ACCEPT
+/sbin/iptables -A INPUT -p TCP -i eth1 --dport  9990 -j ACCEPT
+iptables -L -n
+
+iptables -L -n
+/sbin/iptables -I INPUT 5 -p TCP -i eth1 --dport  9990 -j ACCEPT
+/sbin/iptables -I INPUT 5 -p TCP -i eth1 --dport  8080 -j ACCEPT
+iptables -L -n
+
+/etc/init.d/iptables save
+
+/opt/EAP-6.4.0/bin/standalone.sh &
+
+
+
+java -jar jboss-eap-6.4.0-installer.jar -console
+java -jar jboss-eap-6.4.0-installer.jar -console auto.xml
+
+useradd -r jboss
+chown -R jboss:jboss /opt/jboss-eap-6.4
+
+vim /opt/jboss-eap-6.4/standalone/configuration/standalone.xml
+127.0.0.1 -> 0.0.0.0
+
+firewall-cmd --add-port=8080/tcp --add-port=9990/tcp --add-port=8443/tcp
+firewall-cmd --add-port=8080/tcp --add-port=9990/tcp --add-port=8443/tcp --permanent
+
+sudo -u jboss /opt/jboss-eap-6.4/bin/standalone.sh
