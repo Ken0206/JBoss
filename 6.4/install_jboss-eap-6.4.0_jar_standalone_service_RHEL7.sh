@@ -1,5 +1,5 @@
 #!/bin/bash
-#date : 2019-04-30
+#date : 2019-05-09
 
 IP_add="0.0.0.0"
 JBOSS_HOME="/opt/jboss-eap-6.4"
@@ -112,15 +112,16 @@ EOF
 java -jar ${install_source_file} -console auto.xml
 rm -f auto.xml auto.xml.variables
 
-#useradd -r -s /sbin/nologin ${serviceAccount}
-useradd -r ${serviceAccount}
+#useradd -r -s /sbin/nologin -d ${JBOSS_HOME} ${serviceAccount}
+useradd -r -d ${JBOSS_HOME} ${serviceAccount}
 echo "${serviceAccountPassword}" | passwd ${serviceAccount} --stdin
+skel_files="$(useradd -D | grep "SKEL=" | awk -F'=' '{print $2}')/.bash*"
+\cp ${skel_files} ${JBOSS_HOME}
 chown -R ${serviceAccount}:${serviceAccount} ${JBOSS_HOME}
 
 xmlFile=${JBOSS_HOME}"/standalone/configuration/standalone.xml"
 \cp ${xmlFile} ${xmlFile}.backup
 sed -i '312,317s/127.0.0.1/'"${IP_add}"'/' ${xmlFile}
-# 325
 
 confFile=${JBOSS_HOME}/bin/init.d/jboss-as.conf
 \cp ${confFile} ${confFile}.backup
@@ -128,27 +129,55 @@ sed -i '/# JBOSS_USER=jboss-as/aJBOSS_USER='"${serviceAccount}"'' ${confFile}
 
 shFile=${JBOSS_HOME}/bin/init.d/jboss-as-standalone.sh
 \cp ${shFile} ${shFile}.backup
+#sed -i "s/JBOSS_HOME=\/usr\/share\/jboss-as/JBOSS_HOME=\/opt\/jboss-eap-6.4/" ${shFile}
 sed -i "28d" ${shFile}
 JBOSS_HOME_config="JBOSS_HOME=${JBOSS_HOME}"
 sed -i "27a${JBOSS_HOME_config}" ${shFile}
-#sed -i "s/JBOSS_HOME=\/usr\/share\/jboss-as/JBOSS_HOME=\/opt\/jboss-eap-6.4/" ${shFile}
+
+tmpShFile=${RANDOM}.temp
+head_line=$(grep -n 'start() {' ${shFile} | awk -F':' '{print $1}')
+head -${head_line} ${shFile} > ${tmpShFile}
+cat >> ${tmpShFile} <<EOF
+  up_time=\$(uptime | awk '{print \$3\$4}')
+  while [ "\${up_time}" == "0min," ] || [ "\${up_time}" == "1min," ] ; do
+    sleep 1
+    up_time=\$(uptime | awk '{print \$3\$4}')
+  done
+EOF
+all_line=$(cat ${shFile} | wc -l)
+tail_line=$(echo ${all_line}-${head_line} | bc)
+tail -${tail_line} ${shFile} >> ${tmpShFile}
+cat ${tmpShFile} > ${shFile}
+rm -f ${tmpShFile}
 
 [ -d /etc/jboss-as ] || mkdir -p /etc/jboss-as
 \cp ${confFile} /etc/jboss-as
+
+[ -d /var/log/jboss-as ] || mkdir -p /var/log/jboss-as
+[ -d /var/run/jboss-as ] || mkdir -p /var/run/jboss-as
+chown -R jboss:jboss /var/log/jboss-as
+chown -R jboss:jboss /var/run/jboss-as
+
 \cp ${shFile} /etc/init.d/${serviceName}
 chmod +x /etc/init.d/${serviceName}
+
 chkconfig --add ${serviceName}
 chkconfig ${serviceName} on
 
 service ${serviceName} start
 service ${serviceName} status
 
-/sbin/iptables -I INPUT -p tcp --dport 8080 -j ACCEPT
-/sbin/iptables -I INPUT -p tcp --dport 9990 -j ACCEPT
-#/sbin/iptables -I INPUT -p tcp --dport 4447 -j ACCEPT
-#/etc/rc.d/init.d/iptables save
-/etc/init.d/iptables status
+firewall-cmd --add-port=8080/tcp --add-port=9990/tcp --add-port=8443/tcp
+firewall-cmd --add-port=8080/tcp --add-port=9990/tcp --add-port=8443/tcp --permanent
+firewall-cmd --list-all
 
-# service jboss-as status
-# cat /var/log/jboss-as/console.log
-# cat /opt/jboss-eap-6.4/standalone/log/server.log
+cat << EOF
+
+more information:
+systemctl status jboss-as
+cat /var/log/jboss-as/console.log
+cat /var/log/jboss-as/console.log
+
+The installation is complete.
+
+EOF
