@@ -139,7 +139,7 @@ head_line=$(grep -n 'start() {' ${shFile} | awk -F':' '{print $1}')
 head -${head_line} ${shFile} > ${tmpShFile}
 cat >> ${tmpShFile} <<EOF
   up_time=\$(uptime | awk '{print \$3\$4}')
-  while [ "\${up_time}" == "0min," ] || [ "\${up_time}" == "1min," ] ; do
+  while [ "\${up_time}" == "0min," ] || [ "\${up_time}" == "1min," ] || [ "\${up_time}" == "2min," ] ; do
     sleep 1
     up_time=\$(uptime | awk '{print \$3\$4}')
   done
